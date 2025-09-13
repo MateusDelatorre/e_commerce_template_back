@@ -65,7 +65,7 @@ public class Product implements IProduct {
     }
 
     @Override
-    public Boolean isActive() {
+    public Boolean getActive() {
         return active;
     }
 
@@ -88,5 +88,52 @@ public class Product implements IProduct {
     public java.util.List<String> getOptions() {
         return options;
     }
-    
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public void setStockQuantity(Integer stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public void setTags(java.util.List<String> tags) {
+        this.tags = tags;
+    }
+
+    public void setReviews(java.util.List<String> reviews) {
+        this.reviews = reviews;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public void setOptions(java.util.List<String> options) {
+        this.options = options;
+    }
 }

@@ -1,9 +1,8 @@
-package com.example.demo.domain.entities.product;
+package com.example.demo.domain.usecase.product.dto;
 
 import java.util.List;
 
-public interface IProduct {
-    Long getId();
+public interface IProductRegistrationData {
     String getDescription();
     String getName();
     Double getPrice();
@@ -12,7 +11,5 @@ public interface IProduct {
     String getImageUrl();
     Boolean getActive();
     List<String> getTags();
-    List<String> getReviews();
-    Double getAverageRating();
     List<String> getOptions();
 }

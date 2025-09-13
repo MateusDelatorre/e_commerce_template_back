@@ -10,5 +10,5 @@ public interface IProductRepository {
     List<Product> findByPriceRange(Double minPrice, Double maxPrice);
     List<Product> findByTag(String tag);
     List<Product> findAll();
-    void deleteById(Long id);
+    boolean deleteById(Long id);
 }
