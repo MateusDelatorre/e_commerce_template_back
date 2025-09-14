@@ -13,6 +13,11 @@ public class DeleteUserUseCase {
     }
 
     public void execute(Long id) {
+        User user = userRepository.findById(id);
+        if (user == null) {
+            throw new IllegalArgumentException("Usuário com id " + id + " não encontrado.");
+        }
+
         userRepository.delete(id);
     }
 }
