@@ -5,6 +5,7 @@ import com.example.demo.data.schema.ProductSchema;
 import com.example.demo.domain.entities.product.IProductRepository;
 import com.example.demo.domain.entities.product.Product;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ProductDatabaseGateway implements IProductRepository {
@@ -31,7 +32,7 @@ public class ProductDatabaseGateway implements IProductRepository {
         if (category == null || category.isEmpty()) {
             return List.of();
         }
-        return productRepository.findByCategoryContaining(category)
+        return productRepository.findByCategoryName(category)
                 .stream()
                 .map(ProductSchema::toProduct)
                 .toList();
@@ -49,7 +50,7 @@ public class ProductDatabaseGateway implements IProductRepository {
     }
 
     @Override
-    public List<Product> findByPriceRange(Double minPrice, Double maxPrice) {
+    public List<Product> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
         if (minPrice == null || maxPrice == null) {
             return List.of();
         }
@@ -60,33 +61,14 @@ public class ProductDatabaseGateway implements IProductRepository {
     }
 
     @Override
-    public List<Product> findByTag(String tag) {
-        if (tag == null || tag.isEmpty()) {
-            return List.of();
-        }
-        return productRepository.findByTags(tag)
-                .stream()
-                .map(ProductSchema::toProduct)
-                .toList();
-    }
-
-    @Override
-    public List<Product> findAll() {
-        return productRepository.findAll()
-                .stream()
-                .map(ProductSchema::toProduct)
-                .toList();
-    }
-
-    @Override
-    public boolean deleteById(Long id) {
+    public void deleteById(Long id) {
         if (id == null) {
-            return false;
+            return;
         }
         if (!productRepository.existsById(id)) {
-            return false;
+            return;
         }
         productRepository.deleteById(id);
-        return !productRepository.existsById(id);
+        productRepository.existsById(id);
     }
 }

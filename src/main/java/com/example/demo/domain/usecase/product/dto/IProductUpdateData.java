@@ -1,14 +1,16 @@
 package com.example.demo.domain.usecase.product.dto;
 
+
+import com.example.demo.domain.entities.product.Category;
+
+import java.math.BigDecimal;
+
 public interface IProductUpdateData {
     Long getId();
     String getDescription();
     String getName();
-    Double getPrice();
+    BigDecimal getPrice();
     Integer getStockQuantity();
-    String getCategory();
-    String getImageUrl();
+    Category getCategory();
     Boolean getActive();
-    java.util.List<String> getTags();
-    java.util.List<String> getOptions();
 }

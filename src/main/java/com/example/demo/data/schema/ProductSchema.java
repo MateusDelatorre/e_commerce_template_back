@@ -1,6 +1,5 @@
 package com.example.demo.data.schema;
 
-import com.example.demo.domain.entities.product.IProduct;
 import com.example.demo.domain.entities.product.Product;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -10,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,8 +18,8 @@ import java.util.List;
 @NoArgsConstructor // Generates a no-args constructor.
 @AllArgsConstructor // Generates a constructor with all arguments.
 @Builder
-@Table(name = "product_table")
-public class ProductSchema implements IProduct {
+@Table(name = "product")
+public class ProductSchema {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,13 +29,18 @@ public class ProductSchema implements IProduct {
     @NotBlank
     @Column(nullable = false, length = 100, unique = false)
     private String name;
-    private Double price;
+    private BigDecimal price;
     private Integer stockQuantity;
-    private String category;
-    @Column(nullable = false, unique = false)
-    private String imageUrl;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "category_id")
+    private CategorySchema category;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ImageSchema> images;
     @ColumnDefault("false")
     private Boolean active;
+
     private java.util.List<String> tags;
     private java.util.List<String> reviews;
     private Double averageRating;
@@ -46,13 +52,10 @@ public class ProductSchema implements IProduct {
         this.name = product.getName();
         this.price = product.getPrice();
         this.stockQuantity = product.getStockQuantity();
-        this.category = product.getCategory();
-        this.imageUrl = product.getImageUrl();
+        this.category = new CategorySchema(product.getCategory());
+        this.images = product.getImages().stream().map(ImageSchema::new).toList();
         this.active = product.getActive();
-        this.tags = product.getTags();
-        this.reviews = product.getReviews();
         this.averageRating = product.getAverageRating();
-        this.options = product.getOptions();
     }
 
     public Product toProduct() {
@@ -62,13 +65,10 @@ public class ProductSchema implements IProduct {
             this.name,
             this.price,
             this.stockQuantity,
-            this.category,
-            this.imageUrl,
+            this.category.toCategory(),
+            this.images.stream().map(ImageSchema::toImage).toList(),
             this.active,
-            this.tags,
-            this.reviews,
-            this.averageRating,
-            this.options
+            this.averageRating
         );
     }
 }

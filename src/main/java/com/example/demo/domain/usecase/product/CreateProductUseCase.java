@@ -1,6 +1,5 @@
 package com.example.demo.domain.usecase.product;
 
-import com.example.demo.data.repositories.ProductRepository;
 import com.example.demo.domain.entities.product.IProductRepository;
 import com.example.demo.domain.entities.product.Product;
 import com.example.demo.domain.usecase.product.dto.IProductRegistrationData;
@@ -20,12 +19,9 @@ public class CreateProductUseCase {
             data.getPrice(),
             data.getStockQuantity(),
             data.getCategory(),
-            data.getImageUrl(),
+            null,
             data.getActive(),
-            data.getTags(),
-            null,
-            null,
-            data.getOptions()
+            null
         );
         return productRepository.save(product);
     }

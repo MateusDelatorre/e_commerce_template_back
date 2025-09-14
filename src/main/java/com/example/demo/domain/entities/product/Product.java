@@ -1,139 +1,24 @@
 package com.example.demo.domain.entities.product;
 
-public class Product implements IProduct {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Product {
     private Long id;
     private String description;
     private String name;
-    private Double price;
+    private BigDecimal price;
     private Integer stockQuantity;
-    private String category;
-    private String imageUrl;
+    private Category category;
+    private List<Image> images;
     private Boolean active;
-    private java.util.List<String> tags;
-    private java.util.List<String> reviews;
     private Double averageRating;
-    private java.util.List<String> options;
 
-    public Product(Long id, String description, String name, Double price, Integer stockQuantity, String category, String imageUrl, Boolean active, java.util.List<String> tags, java.util.List<String> reviews, Double averageRating, java.util.List<String> options) {
-        this.id = id;
-        this.description = description;
-        this.name = name;
-        this.price = price;
-        this.stockQuantity = stockQuantity;
-        this.category = category;
-        this.imageUrl = imageUrl;
-        this.active = active;
-        this.tags = tags;
-        this.reviews = reviews;
-        this.averageRating = averageRating;
-        this.options = options;
-    }
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public Double getPrice() {
-        return price;
-    }
-
-    @Override
-    public Integer getStockQuantity() {
-        return stockQuantity;
-    }
-
-    @Override
-    public String getCategory() {
-        return category;
-    }
-
-    @Override
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    @Override
-    public Boolean getActive() {
-        return active;
-    }
-
-    @Override
-    public java.util.List<String> getTags() {
-        return tags;
-    }
-
-    @Override
-    public java.util.List<String> getReviews() {
-        return reviews;
-    }
-
-    @Override
-    public Double getAverageRating() {
-        return averageRating;
-    }
-
-    @Override
-    public java.util.List<String> getOptions() {
-        return options;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public void setStockQuantity(Integer stockQuantity) {
-        this.stockQuantity = stockQuantity;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
-    public void setTags(java.util.List<String> tags) {
-        this.tags = tags;
-    }
-
-    public void setReviews(java.util.List<String> reviews) {
-        this.reviews = reviews;
-    }
-
-    public void setAverageRating(Double averageRating) {
-        this.averageRating = averageRating;
-    }
-
-    public void setOptions(java.util.List<String> options) {
-        this.options = options;
-    }
 }
