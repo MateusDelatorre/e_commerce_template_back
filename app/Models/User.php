@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
@@ -62,5 +63,15 @@ class User extends Authenticatable implements JWTSubject
     public function isCustomer(): bool
     {
         return $this->role === 'customer';
+    }
+
+    /**
+     * Get the addresses associated with the user.
+     *
+     * @return HasMany<EnderecoModel>
+     */
+    public function enderecos(): HasMany
+    {
+        return $this->hasMany(EnderecoModel::class, 'user_id');
     }
 }
