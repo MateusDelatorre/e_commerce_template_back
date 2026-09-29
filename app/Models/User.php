@@ -3,21 +3,35 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Http\Resources\UserResource;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\UseResource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'number'])]
 #[Hidden(['password', 'role'])]
+#[UseResource(UserResource::class)]
 class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    /**
+     * Role hierarchy levels (higher number = more permissions).
+     */
+    public const ROLE_LEVELS = [
+        'customer' => 0,
+        'employee' => 1,
+        'admin' => 2,
+        'owner' => 3,
+        'developer' => 4,
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -50,19 +64,40 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    public function isAdmin(): bool
+    /**
+     * Check if this user has at least the given role level.
+     */
+    public function hasRoleLevel(string $minimumRole): bool
     {
-        return $this->role === 'admin';
-    }
+        $userLevel = self::ROLE_LEVELS[$this->role] ?? -1;
+        $requiredLevel = self::ROLE_LEVELS[$minimumRole] ?? PHP_INT_MAX;
 
-    public function isDeveloper(): bool
-    {
-        return $this->role === 'developer';
+        return $userLevel >= $requiredLevel;
     }
 
     public function isCustomer(): bool
     {
-        return $this->role === 'customer';
+        return $this->hasRoleLevel('customer');
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->hasRoleLevel('employee');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRoleLevel('admin');
+    }
+
+    public function isOwner(): bool
+    {
+        return $this->hasRoleLevel('owner');
+    }
+
+    public function isDeveloper(): bool
+    {
+        return $this->hasRoleLevel('developer');
     }
 
     /**
@@ -73,5 +108,15 @@ class User extends Authenticatable implements JWTSubject
     public function enderecos(): HasMany
     {
         return $this->hasMany(EnderecoModel::class, 'user_id');
+    }
+
+    /**
+     * Get the orders placed by the user.
+     *
+     * @return HasMany<OrderModel>
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(OrderModel::class, 'user_id');
     }
 }

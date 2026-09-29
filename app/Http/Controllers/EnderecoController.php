@@ -14,7 +14,11 @@ class EnderecoController extends Controller
     public function index(): JsonResponse
     {
         // Retrieve authenticated user from JWT token to fetch only their addresses
-        $enderecos = auth()->user()->enderecos()->latest()->get();
+        $enderecos = auth()->user()
+            ->enderecos()
+            ->select(['id', 'addressName', 'streetName'])
+            ->latest()
+            ->get();
 
         return response()->json($enderecos);
     }
@@ -25,23 +29,23 @@ class EnderecoController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'addressName'       => 'required|string|max:255',
-            'receiverName'      => 'required|string|max:255',
-            'streetName'        => 'required|string|max:255',
-            'number'            => 'required|string|max:50',
+            'addressName' => 'required|string|max:255',
+            'receiverName' => 'required|string|max:255',
+            'streetName' => 'required|string|max:255',
+            'number' => 'required|string|max:50',
             'addressComplement' => 'nullable|string|max:255',
-            'city'              => 'required|string|max:255',
-            'country'           => 'required|string|max:255',
-            'state'             => 'required|string|max:255',
-            'cep'               => 'required|string|max:20',
-            'phone'             => 'required|string|max:30',
+            'city' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'cep' => 'required|string|max:20',
+            'phone' => 'required|string|max:30',
         ]);
 
         // Retrieve authenticated user from JWT token and attach the new address to them
         $endereco = auth()->user()->enderecos()->create($validated);
 
         return response()->json([
-            'message'  => 'Address created successfully',
+            'message' => 'Address created successfully',
             'endereco' => $endereco,
         ], 201);
     }
@@ -74,22 +78,22 @@ class EnderecoController extends Controller
         }
 
         $validated = $request->validate([
-            'addressName'       => 'sometimes|required|string|max:255',
-            'receiverName'      => 'sometimes|required|string|max:255',
-            'streetName'        => 'sometimes|required|string|max:255',
-            'number'            => 'sometimes|required|string|max:50',
+            'addressName' => 'sometimes|required|string|max:255',
+            'receiverName' => 'sometimes|required|string|max:255',
+            'streetName' => 'sometimes|required|string|max:255',
+            'number' => 'sometimes|required|string|max:50',
             'addressComplement' => 'nullable|string|max:255',
-            'city'              => 'sometimes|required|string|max:255',
-            'country'           => 'sometimes|required|string|max:255',
-            'state'             => 'sometimes|required|string|max:255',
-            'cep'               => 'sometimes|required|string|max:20',
-            'phone'             => 'sometimes|required|string|max:30',
+            'city' => 'sometimes|required|string|max:255',
+            'country' => 'sometimes|required|string|max:255',
+            'state' => 'sometimes|required|string|max:255',
+            'cep' => 'sometimes|required|string|max:20',
+            'phone' => 'sometimes|required|string|max:30',
         ]);
 
         $endereco->update($validated);
 
         return response()->json([
-            'message'  => 'Address updated successfully',
+            'message' => 'Address updated successfully',
             'endereco' => $endereco,
         ]);
     }

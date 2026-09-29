@@ -6,19 +6,19 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class EnsureAdminOrDeveloper
+class EnsureEmployee
 {
     /**
      * Handle an incoming request.
-     * Allows: admin, owner, developer.
+     * Allows: employee, admin, owner, developer.
      */
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
-        if (!$user || !$user->isAdmin()) {
+        if (!$user || !$user->isEmployee()) {
             return response()->json([
-                'error' => 'Forbidden. Admin access required.'
+                'error' => 'Forbidden. Employee access required.'
             ], 403);
         }
 

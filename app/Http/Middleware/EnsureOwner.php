@@ -6,19 +6,19 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class EnsureAdminOrDeveloper
+class EnsureOwner
 {
     /**
      * Handle an incoming request.
-     * Allows: admin, owner, developer.
+     * Allows: owner, developer.
      */
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
-        if (!$user || !$user->isAdmin()) {
+        if (!$user || !$user->isOwner()) {
             return response()->json([
-                'error' => 'Forbidden. Admin access required.'
+                'error' => 'Forbidden. Owner access required.'
             ], 403);
         }
 

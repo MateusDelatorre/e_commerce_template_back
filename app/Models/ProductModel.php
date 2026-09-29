@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 #[Fillable([
@@ -12,6 +13,10 @@ use Illuminate\Support\Facades\Storage;
     'description',
     'price',
     'image_path',
+    'stock',
+    'discount',
+    'is_featured',
+    'total_sold',
 ])]
 class ProductModel extends Model
 {
@@ -24,6 +29,18 @@ class ProductModel extends Model
         'description',
         'price',
         'image_path',
+        'stock',
+        'discount',
+        'is_featured',
+        'total_sold',
+    ];
+
+    protected $casts = [
+        'price'       => 'decimal:2',
+        'discount'    => 'decimal:2',
+        'is_featured' => 'boolean',
+        'stock'       => 'integer',
+        'total_sold'  => 'integer',
     ];
 
     /**
@@ -45,5 +62,13 @@ class ProductModel extends Model
         }
 
         return asset('storage/' . $this->image_path);
+    }
+
+    /**
+     * Get the order items referencing this product.
+     */
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItemModel::class, 'product_id');
     }
 }
