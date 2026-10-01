@@ -16,18 +16,33 @@ class OrderResource extends JsonResource
     {
         return [
             'id'         => $this->id,
+			'public_reference' => $this->public_reference,
             'status'     => $this->status,
+            'payment_method' => $this->payment_method,
             'total'      => $this->total,
             'notes'      => $this->notes,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'user'       => $this->whenLoaded('user', function () {
+                return [
+                    'id' => $this->user->id,
+                    'name' => $this->user->name,
+                    'email' => $this->user->email,
+                    'phone' => $this->user->number,
+                ];
+            }),
             'endereco'   => $this->whenLoaded('endereco', function () {
                 return [
                     'id'          => $this->endereco->id,
                     'addressName' => $this->endereco->addressName,
+                    'receiverName' => $this->endereco->receiverName,
                     'streetName'  => $this->endereco->streetName,
+                    'number'      => $this->endereco->number,
+                    'addressComplement' => $this->endereco->addressComplement,
                     'city'        => $this->endereco->city,
                     'state'       => $this->endereco->state,
+                    'cep'         => $this->endereco->cep,
+                    'phone'       => $this->endereco->phone,
                 ];
             }),
             'items' => $this->whenLoaded('items', function () {

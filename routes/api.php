@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EnderecoController;
+use App\Http\Controllers\OfficialContactController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StatisticsController;
@@ -14,6 +15,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// Official Contacts (public)
+Route::prefix('contact')->group(function () {
+    Route::get('/whatsapp', [OfficialContactController::class, 'getWhatsApp']);
+    Route::get('/email', [OfficialContactController::class, 'getEmail']);
+});
 
 // Public product browsing
 Route::prefix('products')->group(function () {
@@ -53,6 +60,9 @@ Route::middleware('auth:api')->group(function () {
 
     Route::middleware('employee')->group(function () {
 
+        // Product catalog for staff
+        Route::get('/admin/products', [ProductController::class, 'adminIndex']);
+
         // Product mutations
         Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{id}', [ProductController::class, 'update']);
@@ -63,6 +73,7 @@ Route::middleware('auth:api')->group(function () {
         // Order management
         Route::get('/orders', [OrderController::class, 'allOrders']);
         Route::get('/orders/filter', [OrderController::class, 'filtered']);
+        Route::get('/orders/{id}', [OrderController::class, 'show']);
         Route::patch('/orders/{id}', [OrderController::class, 'updateStatus']);
     });
 
@@ -80,5 +91,11 @@ Route::middleware('auth:api')->group(function () {
 
         // Statistics dashboard
         Route::get('/statistics', [StatisticsController::class, 'dashboard']);
+
+        // Official contact management
+        Route::get('/official-contacts', [OfficialContactController::class, 'index']);
+        Route::post('/official-contacts', [OfficialContactController::class, 'store']);
+        Route::put('/official-contacts/{id}', [OfficialContactController::class, 'update']);
+        Route::delete('/official-contacts/{id}', [OfficialContactController::class, 'destroy']);
     });
 });

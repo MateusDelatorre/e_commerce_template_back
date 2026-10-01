@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ProductListResource;
+use App\Http\Resources\AdminProductResource;
+use App\Http\Resources\ProductResource;
 use App\Models\ProductModel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,7 +21,22 @@ class ProductController extends Controller
 
         $products = ProductModel::query()->latest()->paginate($perPage);
 
-        return response()->json($products);
+        return response()->json(
+            ProductListResource::collection($products)->response()->getData(true)
+        );
+    }
+
+    /**
+     * Display products for employee catalog management.
+     */
+    public function adminIndex(Request $request): JsonResponse
+    {
+        $perPage = $request->integer('per_page', 15);
+        $products = ProductModel::query()->latest()->paginate($perPage);
+
+        return response()->json(
+            AdminProductResource::collection($products)->response()->getData(true)
+        );
     }
 
     /**
@@ -71,7 +88,7 @@ class ProductController extends Controller
     /**
      * Display the specified product (full detail).
      */
-    public function show(int|string $id): JsonResponse
+    public function show(Request $request, int|string $id): JsonResponse
     {
         $product = ProductModel::find($id);
 
@@ -79,7 +96,7 @@ class ProductController extends Controller
             return response()->json(['error' => 'Product not found'], 404);
         }
 
-        return response()->json($product);
+        return response()->json(new ProductResource($product));
     }
 
     /**

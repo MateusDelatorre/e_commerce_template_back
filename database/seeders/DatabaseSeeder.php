@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ProductSeeder::class,
             EnderecoSeeder::class,
+            OfficialContactSeeder::class,
         ]);
     }
 }

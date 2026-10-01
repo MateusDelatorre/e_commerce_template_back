@@ -9,6 +9,7 @@ use App\Models\ProductModel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
@@ -29,6 +30,7 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'endereco_id' => 'nullable|exists:enderecos,id',
+            'payment_method' => 'required|string|in:pix,cash',
             'notes' => 'nullable|string|max:1000',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -70,9 +72,25 @@ class OrderController extends Controller
 
         // Create the order inside a transaction
         $order = DB::transaction(function () use ($validated, $products) {
+            $lockedProducts = ProductModel::whereIn('id', $products->keys())
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            foreach ($validated['items'] as $item) {
+                $product = $lockedProducts->get($item['product_id']);
+
+                if (!$product || $product->stock < $item['quantity']) {
+                    throw ValidationException::withMessages([
+                        'items' => "Insufficient stock for '{$product?->name}', available: {$product?->stock}, requested: {$item['quantity']}",
+                    ]);
+                }
+            }
+
             $order = OrderModel::create([
                 'user_id' => auth()->id(),
                 'endereco_id' => $validated['endereco_id'] ?? null,
+                'payment_method' => $validated['payment_method'],
                 'status' => 'pending',
                 'notes' => $validated['notes'] ?? null,
                 'total' => 0,
@@ -81,7 +99,7 @@ class OrderController extends Controller
             $total = 0;
 
             foreach ($validated['items'] as $item) {
-                $product = $products->get($item['product_id']);
+                $product = $lockedProducts->get($item['product_id']);
 
                 $orderItem = OrderItemModel::create([
                     'order_id' => $order->id,
@@ -91,6 +109,7 @@ class OrderController extends Controller
                     'discount' => $product->discount,
                 ]);
 
+                $product->decrement('stock', $item['quantity']);
                 $total += $orderItem->subtotal;
             }
 
@@ -191,11 +210,25 @@ class OrderController extends Controller
     }
 
     /**
+     * Get one order for employee/admin management.
+     */
+    public function show(int|string $id): JsonResponse
+    {
+        $order = OrderModel::with('user', 'items.product', 'endereco')->find($id);
+
+        if (!$order) {
+            return response()->json(['error' => 'Order not found'], 404);
+        }
+
+        return response()->json(new OrderResource($order));
+    }
+
+    /**
      * Update order status.
      * Employee, admin, owner, and developer only.
      *
-     * Business rule: when transitioning to 'delivered', deduct stock and
-     * increment total_sold on each product.
+    * Business rules: reserve stock when an order is created, restore it when
+    * an order is cancelled, and count sales when an order is delivered.
      */
     public function updateStatus(Request $request, int|string $id): JsonResponse
     {
@@ -218,13 +251,26 @@ class OrderController extends Controller
         }
 
         DB::transaction(function () use ($order, $newStatus) {
-            // When order is completed (delivered), deduct stock and track sales
-            if ($newStatus === 'delivered') {
-                foreach ($order->items as $item) {
-                    ProductModel::where('id', $item->product_id)->update([
-                        'stock' => DB::raw("CASE WHEN stock >= {$item->quantity} THEN stock - {$item->quantity} ELSE 0 END"),
-                        'total_sold' => DB::raw("total_sold + {$item->quantity}"),
+            $products = ProductModel::whereIn('id', $order->items->pluck('product_id'))
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            foreach ($order->items as $item) {
+                $product = $products->get($item->product_id);
+
+                if (!$product) {
+                    throw ValidationException::withMessages([
+                        'items' => "Product ID {$item->product_id} not found",
                     ]);
+                }
+
+                if ($newStatus === 'cancelled') {
+                    $product->increment('stock', $item->quantity);
+                }
+
+                if ($newStatus === 'delivered') {
+                    $product->increment('total_sold', $item->quantity);
                 }
             }
 

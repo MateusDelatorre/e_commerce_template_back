@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class OrderModel extends Model
 {
@@ -15,19 +16,28 @@ class OrderModel extends Model
 
     protected $fillable = [
         'user_id',
+		'public_reference',
         'endereco_id',
+        'payment_method',
         'status',
         'total',
         'notes',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (OrderModel $order) {
+            $order->public_reference ??= 'ORD-' . Str::upper(Str::random(10));
+        });
+    }
 
     /**
      * Valid status transitions.
      * Each status maps to the statuses it can transition to.
      */
     public const STATUS_TRANSITIONS = [
-        'pending' => ['processing', 'cancelled'],
-        'processing' => ['shipped', 'cancelled'],
+        'pending' => ['processing', 'delivered', 'cancelled'],
+        'processing' => ['shipped', 'delivered', 'cancelled'],
         'shipped' => ['delivered', 'cancelled'],
         'delivered' => [],
         'cancelled' => [],
